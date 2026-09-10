@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Album Book</title>
+    <style>
+      :root {
+        color-scheme: light;
+        background: #eee6d7;
+        color: #1f1b18;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+        background: #eee6d7;
+      }
+
+      body {
+        overflow: hidden;
+      }
+
+      .album-app {
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        background: #eee6d7;
+      }
+
+      .opening-screen {
+        color: #1f1b18;
+        animation: opening-fade-in 0.45s ease-out both;
+        font-size: clamp(0.9rem, 2.5vw, 1.35rem);
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-align: center;
+      }
+
+      .opening-screen[hidden],
+      .album-page[hidden] {
+        display: none;
+      }
+
+      .album-page {
+        display: block;
+        width: min(92vw, 820px);
+        height: min(92dvh, 980px);
+        padding: 0;
+        border: 0;
+        cursor: pointer;
+        background: transparent;
+        color: inherit;
+        text-decoration: none;
+        transform-style: preserve-3d;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .album-page:focus-visible {
+        outline: 2px solid #a74732;
+        outline-offset: 8px;
+      }
+
+      .page-content {
+        display: block;
+        width: 100%;
+        height: 100%;
+        animation: page-in 0.72s cubic-bezier(0.22, 0.74, 0.25, 1) both;
+        transform-origin: left center;
+      }
+
+      .album-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        user-select: none;
+      }
+
+      .pre-save-wrap,
+      .audio-wrap {
+        display: grid;
+        place-items: center;
+        gap: 1.5rem;
+        width: 100%;
+        height: 100%;
+      }
+
+      .audio-wrap {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .audio-label {
+        color: #1f1b18;
+        font-size: clamp(0.9rem, 2.5vw, 1.35rem);
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-align: center;
+      }
+
+      .audio-player {
+        width: min(90%, 560px);
+      }
+
+      .pre-save-label {
+        border-bottom: 2px solid currentColor;
+        color: #1f1b18;
+        font-size: clamp(1rem, 3vw, 1.5rem);
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        padding: 0.3rem 0;
+        text-align: center;
+      }
+
+      @keyframes page-in {
+        from {
+          opacity: 0;
+          transform: rotateY(-10deg) translateX(-16px);
+        }
+        to {
+          opacity: 1;
+          transform: rotateY(0) translateX(0);
+        }
+      }
+
+      @keyframes opening-fade-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="album-app">
+      <div id="opening-screen" class="opening-screen" aria-live="polite">
+        TOP SECRET FILE......PRODIGY
+      </div>
+
+      <button
+        id="album-button"
+        class="album-page"
+        type="button"
+        aria-label="Show next picture"
+        hidden
+      >
+        <span id="image-content" class="page-content">
+          <img id="album-image" class="album-image" alt="">
+        </span>
+      </button>
+
+      <button
+        id="audio-page"
+        class="album-page"
+        type="button"
+        aria-label="Play song"
+        hidden
+      >
+        <span id="audio-content" class="page-content audio-wrap">
+          <span class="audio-label">TOP SECRET SONG... PRESS PLAY</span>
+          <audio class="audio-player" controls>
+            <source src="images/song.wav" type="audio/wav">
+          </audio>
+        </span>
+      </button>
+
+      <a
+        id="pre-save-link"
+        class="album-page"
+        href="https://orcd.co/melo3prodigy"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Pre-save Melo 3 Prodigy"
+        hidden
+      >
+        <span id="link-content" class="page-content pre-save-wrap">
+          <span class="pre-save-label">PRE-SAVE MELO 3</span>
+        </span>
+      </a>
+    </main>
+
+    <script>
+      const pages = [
+        {
+          kind: "image",
+          src: "images/album-cover.jpg",
+          alt: "Kraft paper album cover marked Confidential Prodigy"
+        },
+        {
+          kind: "image",
+          src: "images/album-page-melo.jpg",
+          alt: "Confidential case file for Melo, with a portrait and identifying features"
+        },
+        {
+          kind: "image",
+          src: "images/album-page-3.jpg",
+          alt: "Confidential case file for Tremin, with a portrait and identifying features"
+        },
+        {
+          kind: "image",
+          src: "images/album-page-4.jpg",
+          alt: "Confidential case file for Exor8, with a portrait and identifying features"
+        },
+        {
+          kind: "image",
+          src: "images/album-page-5.jpg",
+          alt: "Confidential case file"
+        },
+        {
+          kind: "image",
+          src: "images/album-page-6.jpg",
+          alt: "Confidential case file"
+        },
+        {
+          kind: "audio",
+          src: "images/song.wav",
+          label: "TOP SECRET SONG... PRESS PLAY"
+        },
+        {
+          kind: "link",
+          href: "https://orcd.co/melo3prodigy"
+        }
+      ];
+
+      const openingScreen = document.getElementById("opening-screen");
+      const albumButton = document.getElementById("album-button");
+      const audioPage = document.getElementById("audio-page");
+      const preSaveLink = document.getElementById("pre-save-link");
+      const albumImage = document.getElementById("album-image");
+      const imageContent = document.getElementById("image-content");
+      const audioContent = document.getElementById("audio-content");
+      const linkContent = document.getElementById("link-content");
+      let activePage = 0;
+
+      function goToPage(nextPage) {
+        activePage = Math.max(0, Math.min(pages.length - 1, nextPage));
+        renderPage();
+      }
+
+      function renderPage() {
+        const page = pages[activePage];
+        albumButton.hidden = page.kind !== "image";
+        audioPage.hidden = page.kind !== "audio";
+        preSaveLink.hidden = page.kind !== "link";
+
+        if (page.kind === "image") {
+          albumImage.src = page.src;
+          albumImage.alt = page.alt;
+          imageContent.style.animation = "none";
+          void imageContent.offsetWidth;
+          imageContent.style.animation = "";
+        } else if (page.kind === "audio") {
+          audioContent.style.animation = "none";
+          void audioContent.offsetWidth;
+          audioContent.style.animation = "";
+        } else {
+          linkContent.style.animation = "none";
+          void linkContent.offsetWidth;
+          linkContent.style.animation = "";
+        }
+      }
+
+      albumButton.addEventListener("click", () => {
+        goToPage(activePage === pages.length - 1 ? 0 : activePage + 1);
+      });
+
+      audioPage.addEventListener("click", (e) => {
+        if (e.target.closest("audio")) return;
+        goToPage(activePage === pages.length - 1 ? 0 : activePage + 1);
+      });
+
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "PageDown") {
+          event.preventDefault();
+          goToPage(activePage + 1);
+        }
+        if (event.key === "ArrowLeft" || event.key === "PageUp") {
+          event.preventDefault();
+          goToPage(activePage - 1);
+        }
+        if (event.key === "Home") {
+          event.preventDefault();
+          goToPage(0);
+        }
+        if (event.key === "End") {
+          event.preventDefault();
+          goToPage(pages.length - 1);
+        }
+      });
+
+      window.setTimeout(() => {
+        openingScreen.hidden = true;
+        renderPage();
+      }, 1800);
+    </script>
+  </body>
+</html>
